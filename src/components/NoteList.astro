@@ -1,0 +1,24 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate } from '../lib/content';
+import { pathTo } from '../lib/paths';
+
+interface Props {
+  notes: CollectionEntry<'notes'>[];
+}
+const { notes } = Astro.props;
+---
+
+<ul class="note-list">
+  {notes.map(({ data }) => (
+    <li>
+      <div class="note-meta">
+        <span>{data.kind === 'video' ? 'Video' : data.kind === 'article' ? 'Article' : 'Note'}</span>
+        {data.durationSeconds && <span>{Math.ceil(data.durationSeconds / 60)} min</span>}
+        <time datetime={data.publishedAt!.toISOString()}>{formatDate(data.publishedAt!)}</time>
+      </div>
+      <h2><a href={pathTo(`notes/${data.slug}/`)}>{data.title}</a></h2>
+      <p>{data.description}</p>
+    </li>
+  ))}
+</ul>

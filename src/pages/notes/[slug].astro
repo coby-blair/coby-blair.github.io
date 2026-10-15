@@ -1,0 +1,58 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import VideoPlayer from '../../components/VideoPlayer.astro';
+import { publishedNotes, formatDate } from '../../lib/content';
+import { pathTo } from '../../lib/paths';
+
+export async function getStaticPaths() {
+  return (await publishedNotes()).map((note) => ({
+    params: { slug: note.data.slug },
+    props: { note },
+  }));
+}
+
+interface Props {
+  note: CollectionEntry<'notes'>;
+}
+const { note } = Astro.props;
+const { data } = note;
+const { Content } = await render(note);
+const episodes = data.series
+  ? (await publishedNotes())
+    .filter((entry) => entry.data.series === data.series)
+    .sort((a, b) => (a.data.order ?? Infinity) - (b.data.order ?? Infinity))
+  : [];
+const next = episodes[episodes.findIndex((entry) => entry.id === note.id) + 1];
+---
+
+<SiteLayout title={data.title} description={data.description} section="notes">
+  <article>
+    <header class="page-heading">
+      {data.series && <a class="eyebrow" href={pathTo('series/token-tips/')}>Two-Minute Token Tips</a>}
+      <h1>{data.title}</h1>
+      <p class="lede">{data.description}</p>
+      <div class="note-meta">
+        <time datetime={data.publishedAt!.toISOString()}>{formatDate(data.publishedAt!)}</time>
+        {data.durationSeconds && <span>{Math.ceil(data.durationSeconds / 60)} min video</span>}
+        {data.scope && <span>{data.scope}</span>}
+      </div>
+      {data.lastReviewedAt && <p class="review-date">Last reviewed {formatDate(data.lastReviewedAt)}</p>}
+      {data.updatedAt && <p class="review-date">Updated {formatDate(data.updatedAt)}</p>}
+    </header>
+    {data.youtubeId && <VideoPlayer id={data.youtubeId} title={data.title} />}
+    <div class="prose">
+      <Content />
+      {data.tryThis && <section class="takeaway"><h2>Try this</h2><p class="preserve-lines">{data.tryThis}</p></section>}
+      {data.caveat && <section><h2>A caveat</h2><p>{data.caveat}</p></section>}
+      {data.transcript && <section><h2>Transcript</h2><div class="preserve-lines">{data.transcript}</div></section>}
+      {data.publicSources.length > 0 && (
+        <section>
+          <h2>References &amp; further reading</h2>
+          <ul>{data.publicSources.map((source) => <li><a href={source.url}>{source.title}</a></li>)}</ul>
+        </section>
+      )}
+    </div>
+    {next && <nav class="next-note" aria-label="Next in this series"><span class="eyebrow">Next in the series</span><a href={pathTo(`notes/${next.data.slug}/`)}>{next.data.title} <span aria-hidden="true">&rarr;</span></a></nav>}
+  </article>
+</SiteLayout>

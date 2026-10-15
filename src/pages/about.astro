@@ -1,0 +1,21 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { pathTo } from '../lib/paths';
+---
+
+<SiteLayout title="About" description="A little about Coby Blair and this site." section="about">
+  <div class="page-heading">
+    <p class="eyebrow">The person behind the notes</p>
+    <h1>Hi, I'm Coby.</h1>
+    <p class="lede">I'm interested in the practical side of AI and software: how things work, where they help, and what it takes to use them well.</p>
+  </div>
+  <div class="prose">
+    <p>This is a place to share what I'm learning along the way. Some topics need a longer explanation. Others are better as a small example or a two-minute video.</p>
+    <p>I aim for useful over comprehensive. Something you can understand, try, and come back to later.</p>
+    <h2>What you'll find here</h2>
+    <p>Notes on AI, developer tools, and building software. I'm starting with <a href={pathTo('series/token-tips/')}>Two-Minute Token Tips</a>, a short series about getting better results from coding agents without unnecessary complexity.</p>
+    <h2>A note on sources</h2>
+    <p>Technical guidance changes. I'll link to supporting references, make the scope clear, and update notes when something important changes. Examples are examples, not promises that a technique will work the same way in every situation.</p>
+    <p class="muted">This is a personal site. Views expressed here are my own.</p>
+  </div>
+</SiteLayout>

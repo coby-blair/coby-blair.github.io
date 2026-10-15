@@ -1,0 +1,22 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import NoteList from '../../components/NoteList.astro';
+import { publishedNotes } from '../../lib/content';
+import { pathTo } from '../../lib/paths';
+const notes = await publishedNotes();
+---
+
+<SiteLayout title="Notes" description="Short explanations, examples, and practical notes on AI and software." section="notes">
+  <div class="page-heading">
+    <p class="eyebrow">Written down, so they're useful later</p>
+    <h1>Notes &amp; examples.</h1>
+    <p class="lede">Short explanations, the occasional video, and a few things worth keeping handy.</p>
+  </div>
+  {notes.length > 0 ? <NoteList notes={notes} /> : (
+    <div class="empty-state prose">
+      <h2>Starting small.</h2>
+      <p>The first notes are in the works. I'm starting with <a href={pathTo('series/token-tips/')}>Two-Minute Token Tips</a>: short, practical explanations about working with AI.</p>
+      <p>No publishing schedule. Just useful things, when they're ready.</p>
+    </div>
+  )}
+</SiteLayout>

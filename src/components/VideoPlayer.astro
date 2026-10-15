@@ -1,0 +1,43 @@
+---
+interface Props {
+  id: string;
+  title: string;
+}
+const { id, title } = Astro.props;
+if (!/^[A-Za-z0-9_-]{11}$/.test(id)) {
+  throw new Error('Invalid YouTube video ID.');
+}
+---
+
+<div class="video-block">
+  <div class="video-player" data-video-id={id} data-video-title={title}>
+    <div class="video-placeholder">
+      <span class="eyebrow">Watch the video</span>
+      <p>{title}</p>
+      <button class="play-button" type="button" hidden>Play video <span aria-hidden="true">&rarr;</span></button>
+    </div>
+  </div>
+  <p class="video-privacy">Playing loads YouTube. You can also <a href={`https://www.youtube.com/watch?v=${id}`}>watch on YouTube</a>.</p>
+</div>
+
+<script>
+  for (const player of document.querySelectorAll<HTMLElement>('.video-player')) {
+    const button = player.querySelector<HTMLButtonElement>('button');
+    if (!button) continue;
+    button.hidden = false;
+    button.addEventListener('click', () => {
+      const id = player.dataset.videoId;
+      if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) {
+        throw new Error('Missing or invalid YouTube video ID.');
+      }
+      const frame = document.createElement('iframe');
+      frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=0`;
+      frame.title = player.dataset.videoTitle || 'Video';
+      frame.allow = 'encrypted-media; picture-in-picture; fullscreen';
+      frame.referrerPolicy = 'strict-origin-when-cross-origin';
+      frame.allowFullscreen = true;
+      player.replaceChildren(frame);
+      frame.focus();
+    }, { once: true });
+  }
+</script>
