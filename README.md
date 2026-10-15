@@ -2,6 +2,10 @@
 
 A small, static Astro site. No database, accounts, tracking, external fonts, or client-side framework.
 
+Source repository: https://github.com/coby-blair/personal-site
+
+This repository is published as source only. GitHub Pages is not enabled.
+
 ## Local development
 
 Use Node.js 24 LTS, then:
