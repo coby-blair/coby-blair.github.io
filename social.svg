@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <style>:root{--cp-bg:#f7f4ef;--cp-text:#242424;--cp-text-muted:#5c5c5c;--cp-accent:#b11f4b}rect{fill:var(--cp-bg)}text{fill:var(--cp-text);font-family:"Segoe UI",sans-serif}.name{font-size:32px}.title{font-size:64px;font-weight:600}.sub{fill:var(--cp-text-muted);font-size:28px}.dot{fill:var(--cp-accent)}</style>
+  <rect width="1200" height="630"/>
+  <text x="100" y="135" class="name">Coby Blair<tspan class="dot">.</tspan></text>
+  <text x="100" y="300" class="title">Practical notes on</text>
+  <text x="100" y="380" class="title">AI and software.</text>
+  <text x="100" y="495" class="sub">Clear explanations. Useful examples.</text>
+</svg>
