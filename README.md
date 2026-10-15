@@ -53,11 +53,11 @@ When advice ages, add a correction or superseding note while preserving the orig
 
 Use the personally controlled GitHub account selected by the owner, not an unrelated work account. For a root personal site, the repository name is `<username>.github.io`. A normal project repository also works; the workflow obtains the correct base path from Pages.
 
-Publishing this source repository and deploying the website are separate actions. The prepared `.github/workflows/deploy.yml` is manual-only and does not deploy on push. Its deployment input defaults to false. Keep Pages disabled until the owner separately approves making the website live.
+Publishing this source repository and deploying the website are separate actions. The prepared `deployment/github-pages.yml` is an inactive template outside GitHub's workflow directory. It does not run when this repository is uploaded. Even after installation, it is manual-only and its deployment input defaults to false. Keep Pages disabled until the owner separately approves making the website live.
 
 After separate website-launch approval:
 
-1. Create or select the intended repository and push the reviewed source.
+1. Install `deployment/github-pages.yml` as `.github/workflows/deploy.yml` and push the reviewed change using an account authorized to manage workflows.
 2. Set repository Settings > Pages > Source to GitHub Actions.
 3. Manually run the Pages workflow with `deploy_site` enabled.
 4. Check the public URL and nested routes.

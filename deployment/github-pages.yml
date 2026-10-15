@@ -1,3 +1,4 @@
+# Inactive template. Install under .github/workflows/ only after website-launch approval.
 name: Publish site to GitHub Pages
 
 on:
