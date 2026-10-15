@@ -2,9 +2,11 @@
 
 A small, static Astro site. No database, accounts, tracking, external fonts, or client-side framework.
 
-Source repository: https://github.com/coby-blair/personal-site
+Website: https://coby-blair.github.io/
 
-This repository is published as source only. GitHub Pages is not enabled.
+Source repository: https://github.com/coby-blair/coby-blair.github.io
+
+`main` holds the source; `gh-pages` holds the generated site served by GitHub Pages.
 
 ## Local development
 
@@ -24,7 +26,7 @@ npm run build
 npm run preview
 ```
 
-`SITE_URL` sets the canonical origin; `BASE_PATH` optionally sets a project-site prefix. Without deployment configuration, the site uses a local URL, never an invented public domain.
+`SITE_URL` overrides the canonical origin; `BASE_PATH` optionally sets a project-site prefix. Production defaults to `https://coby-blair.github.io/`. The development server still runs locally.
 
 ## Publishing content
 
@@ -55,18 +57,21 @@ When advice ages, add a correction or superseding note while preserving the orig
 
 ## GitHub Pages
 
-Use the personally controlled GitHub account selected by the owner, not an unrelated work account. For a root personal site, the repository name is `<username>.github.io`. A normal project repository also works; the workflow obtains the correct base path from Pages.
+This site uses the personally controlled `coby-blair` account and its root Pages repository. Pages serves the root of the `gh-pages` branch. `public/.nojekyll` preserves Astro's generated asset folders.
 
-Publishing this source repository and deploying the website are separate actions. The prepared `deployment/github-pages.yml` is an inactive template outside GitHub's workflow directory. It does not run when this repository is uploaded. Even after installation, it is manual-only and its deployment input defaults to false. Keep Pages disabled until the owner separately approves making the website live.
+Source changes and website releases remain separate. Pushing `main` does not automatically publish a new version of the site.
 
-After separate website-launch approval:
+For an approved update:
 
-1. Install `deployment/github-pages.yml` as `.github/workflows/deploy.yml` and push the reviewed change using an account authorized to manage workflows.
-2. Set repository Settings > Pages > Source to GitHub Actions.
-3. Manually run the Pages workflow with `deploy_site` enabled.
-4. Check the public URL and nested routes.
+1. Review the exact public content and commit the source on `main`.
+2. Run `npm run check`, `npm test`, and `npm run build`.
+3. In a separate checkout of `gh-pages`, replace the generated site files with the contents of `dist/`, including `.nojekyll`. Preserve the checkout's `.git` directory and branch history.
+4. Commit and push that branch using the personal account, without force-pushing.
+5. Wait for GitHub's Pages deployment and check the live URL and nested routes.
 
-For a custom domain, verify ownership and follow GitHub's current DNS/HTTPS guidance. Configure it in Pages; the workflow reads the resulting origin and base path. Do not add guessed DNS records or an unowned domain.
+`deployment/github-pages.yml` remains an optional, inactive template for a later move to artifact-based GitHub Actions deployment. Installing it requires appropriate workflow authorization; do not enable a second publishing method inadvertently.
+
+For a custom domain, verify ownership and follow GitHub's current DNS/HTTPS guidance. Update `SITE_URL` and Pages configuration together before rebuilding. Do not add guessed DNS records or an unowned domain.
 
 ## Content and rights
 
