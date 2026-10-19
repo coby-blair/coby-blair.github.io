@@ -2,15 +2,50 @@
 import type { CollectionEntry } from 'astro:content';
 import { formatDate } from '../lib/content';
 import { pathTo } from '../lib/paths';
+import { standaloneTokenTipsVideos } from '../lib/token-tips';
 
 interface Props {
   notes: CollectionEntry<'notes'>[];
+  includeTokenTips?: boolean;
 }
-const { notes } = Astro.props;
+const { notes, includeTokenTips = false } = Astro.props;
+const seriesNotes = includeTokenTips ? notes.filter(({ data }) => data.series === 'token-tips') : [];
+const standaloneVideos = includeTokenTips
+  ? standaloneTokenTipsVideos(seriesNotes).map(({ id, title, publishedAt }) => ({
+      title,
+      href: `${pathTo('series/token-tips/')}#${id}`,
+      publishedAt,
+    }))
+  : [];
+const seriesEpisodes = [
+  ...seriesNotes.map(({ data }) => ({
+    title: data.title,
+    href: pathTo(`notes/${data.slug}/`),
+    publishedAt: data.publishedAt!,
+  })),
+  ...standaloneVideos,
+].sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+const latestEpisode = seriesEpisodes[0];
+const listedNotes = includeTokenTips ? notes.filter(({ data }) => data.series !== 'token-tips') : notes;
 ---
 
 <ul class="note-list">
-  {notes.map(({ data }) => (
+  {includeTokenTips && (
+    <li data-feed-series="token-tips">
+      <div class="note-meta">
+        <span>Video series</span>
+        <span>{seriesEpisodes.length > 0 ? `${seriesEpisodes.length} ${seriesEpisodes.length === 1 ? 'episode' : 'episodes'}` : 'In progress'}</span>
+      </div>
+      <h2><a href={pathTo('series/token-tips/')}>Two-Minute Token Tips</a></h2>
+      <p>Short videos on tasks, context, model choice, and getting useful results from GitHub Copilot.</p>
+      {latestEpisode && (
+        <p class="feed-latest">
+          Latest: <a href={latestEpisode.href}>{latestEpisode.title}</a>
+        </p>
+      )}
+    </li>
+  )}
+  {listedNotes.map(({ data }) => (
     <li>
       <div class="note-meta">
         <span>{data.kind === 'video' ? 'Video' : data.kind === 'article' ? 'Article' : 'Note'}</span>

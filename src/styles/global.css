@@ -91,13 +91,9 @@ main { min-height: 58vh; padding-bottom: 5rem; }
 .text-link { display: inline-block; font-size: .9375rem; font-weight: 500; text-decoration: none; }
 .text-link:hover { text-decoration: underline; }
 .text-link span { margin-left: .35rem; }
-.featured-series { border-top: 1px solid var(--cp-border); padding-block: 2.75rem 1rem; max-width: 690px; }
-.section-kicker { display: flex; align-items: center; gap: 1rem; margin-bottom: .875rem; }
-.status-label { color: var(--cp-text-muted); font-size: .75rem; border-left: 1px solid var(--cp-border-strong); padding-left: 1rem; line-height: 1.4; }
-.featured-series h2 { margin-bottom: 1rem; }
-.featured-series h2 a { text-decoration: none; }
-.featured-series > p { color: var(--cp-text-muted); max-width: 580px; margin-bottom: 1rem; }
-.recent-notes { margin-top: 3rem; }
+.content-feed { border-top: 1px solid var(--cp-border); max-width: 700px; }
+.note-list .feed-latest { font-size: .875rem; margin-top: .75rem; }
+.additional-episodes { margin-top: 2rem; }
 .section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
 .section-heading > a { font-size: .875rem; }
 .site-footer { display: flex; justify-content: space-between; align-items: baseline; gap: 1.5rem; border-top: 1px solid var(--cp-border); padding-block: 1.5rem 2rem; color: var(--cp-text-muted); font-size: .8125rem; }
@@ -141,6 +137,9 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; font-size:
 .review-date { font-size: .8125rem; color: var(--cp-text-muted); margin-top: .5rem; }
 .video-block { max-width: 700px; margin-bottom: 2.5rem; }
 .video-placeholder { border: 1px solid var(--cp-border); border-radius: .625rem; background: var(--cp-bg-elevated); padding: 2rem; }
+.video-placeholder-poster { position: relative; padding: 0; overflow: hidden; }
+.video-placeholder-poster img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+.video-placeholder-poster .play-button { position: absolute; left: 1rem; bottom: 1rem; }
 .video-placeholder > p:not(.video-privacy) { margin-block: .75rem 1.5rem; font-size: 1.5rem; font-weight: 500; line-height: 1.35; }
 .play-button { background: var(--cp-text); color: var(--cp-bg); border: 1px solid var(--cp-text); border-radius: .625rem; padding: .5rem 1rem; font-size: .9375rem; }
 .video-privacy { color: var(--cp-text-muted); font-size: .8125rem; margin-top: 1rem; }
@@ -159,12 +158,12 @@ code, pre { font-family: Consolas, "Courier New", Courier, monospace; font-size:
   .intro { padding-block: 3.5rem 3rem; }
   .desktop-break { display: none; }
   .intro-copy { font-size: 1.0625rem; }
-  .featured-series { padding-top: 2rem; }
   .page-heading { padding-top: 3rem; }
   .lede { font-size: 1.125rem; }
   .site-footer { align-items: flex-start; }
   main { padding-bottom: 3.5rem; }
   .video-placeholder { padding: 1.25rem; }
+  .video-placeholder-poster { padding: 0; }
 }
 
 @media print {

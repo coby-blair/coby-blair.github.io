@@ -1,0 +1,276 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import VideoPlayer from './VideoPlayer.astro';
+import { pathTo } from '../lib/paths';
+import { resolveTokenTipsRoadmap } from '../lib/token-tips';
+
+interface Props {
+  notes: CollectionEntry<'notes'>[];
+}
+
+const { notes } = Astro.props;
+const chapters = resolveTokenTipsRoadmap(notes);
+const total = chapters.reduce((count, chapter) => count + chapter.checkpoints.length, 0);
+---
+
+<section class="roadmap-section" aria-labelledby="roadmap-title" data-roadmap>
+  <div class="roadmap-heading">
+    <h2 id="roadmap-title">The roadmap</h2>
+    <p class="roadmap-caption">{total} topics &middot; Videos added as they are published.</p>
+  </div>
+  <div class="roadmap-progress" data-progress-controls hidden>
+    <p data-progress-status aria-live="polite" aria-atomic="true"></p>
+    <button type="button" data-progress-reset disabled>Reset checkmarks</button>
+  </div>
+  <p class="roadmap-caption roadmap-notice" data-progress-notice role="status" hidden></p>
+  <noscript><p class="roadmap-caption">All topics are below. Enable JavaScript to keep optional checkmarks.</p></noscript>
+  <div class="roadmap">
+    {chapters.map((chapter, chapterIndex) => (
+      <section class="roadmap-chapter" aria-labelledby={`chapter-${chapter.id}`}>
+        <h3 class="roadmap-chapter-title" id={`chapter-${chapter.id}`}>
+          <span class="roadmap-chapter-dot" aria-hidden="true"></span>
+          <span class="eyebrow">Part {chapterIndex + 1} / {chapter.title}</span>
+        </h3>
+        <ol class="roadmap-checkpoints" start={chapter.checkpoints[0].number}>
+          {chapter.checkpoints.map((checkpoint) => (
+            <li class="roadmap-checkpoint" id={checkpoint.id} data-checkpoint-id={checkpoint.id}>
+              <div class="checkpoint-node">
+                <span class="checkpoint-static checkpoint-marker" aria-hidden="true">
+                  {String(checkpoint.number).padStart(2, '0')}
+                </span>
+                <label class="checkpoint-toggle" hidden>
+                  <input
+                    type="checkbox"
+                    data-checkpoint-toggle
+                    aria-label={`Mark "${checkpoint.title}" complete`}
+                  />
+                  <span class="checkpoint-marker" aria-hidden="true">
+                    <span class="checkpoint-number">{String(checkpoint.number).padStart(2, '0')}</span>
+                    <svg class="checkpoint-check" viewBox="0 0 24 24" fill="none">
+                      <path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </label>
+              </div>
+              <div class="checkpoint-copy">
+                {!checkpoint.video && (
+                  <div class="checkpoint-meta">
+                    <span>Video coming soon</span>
+                  </div>
+                )}
+                <h4>
+                  {checkpoint.note
+                    ? <a href={pathTo(`notes/${checkpoint.note.data.slug}/`)}>{checkpoint.title}</a>
+                    : checkpoint.title}
+                </h4>
+                <p>{checkpoint.summary}</p>
+                {checkpoint.video && (
+                  <div class="checkpoint-video">
+                    <VideoPlayer
+                      id={checkpoint.video.youtubeId}
+                      title={checkpoint.video.title}
+                      poster={checkpoint.video.poster}
+                    />
+                  </div>
+                )}
+                {checkpoint.lesson && (
+                  <details class="checkpoint-lesson" data-mini-lesson={checkpoint.id}>
+                    <summary>
+                      Read the mini-lesson<span class="sr-only">: {checkpoint.title}</span>
+                    </summary>
+                    <div class="lesson-body">
+                      {checkpoint.lesson.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+                      {checkpoint.lesson.points && (
+                        <ul>
+                          {checkpoint.lesson.points.map((point) => (
+                            <li><strong>{point.term}:</strong> {point.text}</li>
+                          ))}
+                        </ul>
+                      )}
+                      {checkpoint.lesson.example && (
+                        <pre aria-label="Illustrative example"><code>{checkpoint.lesson.example}</code></pre>
+                      )}
+                      <p class="lesson-references">
+                        Further reading:{' '}
+                        {checkpoint.lesson.references.map((reference, index) => (
+                          <>
+                            {index > 0 && <span> &middot; </span>}
+                            <a href={reference.url}>{reference.title}</a>
+                          </>
+                        ))}
+                      </p>
+                      <p class="lesson-try"><strong>Try it:</strong> {checkpoint.lesson.tryThis}</p>
+                    </div>
+                  </details>
+                )}
+                {checkpoint.note && (
+                  <div class="checkpoint-episode">
+                    <a class="text-link" href={pathTo(`notes/${checkpoint.note.data.slug}/`)}>
+                      {checkpoint.note.data.kind === 'video' && checkpoint.note.data.youtubeId
+                        ? checkpoint.note.data.transcript ? 'Notes, transcript, and references' : 'Notes and references'
+                        : 'Read the note'}
+                      <span aria-hidden="true">&rarr;</span>
+                    </a>
+                  </div>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))}
+  </div>
+</section>
+
+<style>
+  .roadmap-section { max-width: 760px; }
+  .roadmap-heading { border-top: 1px solid var(--cp-border); padding-top: 1.75rem; }
+  .roadmap-heading h2 { margin-bottom: .5rem; }
+  .roadmap-caption { color: var(--cp-text-muted); font-size: .8125rem; }
+  .roadmap-progress { display: flex; align-items: baseline; flex-wrap: wrap; gap: .5rem 1.5rem; margin-top: 1rem; font-size: .8125rem; color: var(--cp-text-muted); }
+  .roadmap-progress button { padding: 0; border: 0; background: none; color: var(--cp-text-muted); font-size: inherit; text-decoration: underline; text-underline-offset: .2em; }
+  .roadmap-progress button:disabled { opacity: .65; cursor: default; text-decoration: none; }
+  .roadmap-notice { margin-top: .5rem; }
+  .roadmap { position: relative; margin-top: 2.5rem; }
+  .roadmap::before { content: ""; position: absolute; top: .75rem; bottom: 2.75rem; left: 23px; width: 2px; background: var(--cp-border); }
+  .roadmap-chapter { position: relative; }
+  .roadmap-chapter + .roadmap-chapter { padding-top: 1.5rem; }
+  .roadmap-chapter-title { display: flex; align-items: center; gap: 1.5rem; padding-left: 16px; margin-bottom: 1.5rem; }
+  .roadmap-chapter-title .eyebrow { font-size: .75rem; letter-spacing: .065em; text-align: left; }
+  .roadmap-chapter-dot { position: relative; flex: 0 0 16px; width: 16px; height: 16px; border: 4px solid var(--cp-bg); border-radius: 50%; background: var(--cp-accent); }
+  .roadmap-checkpoints { list-style: none; margin: 0; padding: 0; }
+  .roadmap-checkpoint { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 1.5rem; padding-bottom: 1.75rem; scroll-margin-top: 2rem; }
+  .roadmap-checkpoint::before { content: ""; position: absolute; top: 24px; bottom: 0; left: 23px; width: 2px; background: var(--cp-accent); transform: scaleY(0); transform-origin: top; transition: transform 300ms ease; }
+  .roadmap-checkpoint[data-complete="true"]::before { transform: scaleY(1); }
+  .roadmap-chapter:last-child .roadmap-checkpoint:last-child::before { display: none; }
+  .checkpoint-node { position: relative; width: 48px; height: 48px; }
+  .checkpoint-marker { position: relative; display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid var(--cp-border-strong); border-radius: 50%; background: var(--cp-bg); color: var(--cp-text-muted); font-size: .75rem; font-variant-numeric: tabular-nums; }
+  .checkpoint-toggle { position: relative; display: block; width: 48px; height: 48px; cursor: pointer; }
+  .checkpoint-toggle input { position: absolute; inset: 0; width: 48px; height: 48px; margin: 0; opacity: 0; z-index: 1; cursor: pointer; }
+  .checkpoint-toggle input:focus-visible + .checkpoint-marker { outline: 2px solid var(--cp-accent); outline-offset: 5px; }
+  .checkpoint-toggle:hover .checkpoint-marker { border-color: var(--cp-accent); color: var(--cp-accent); }
+  .checkpoint-toggle input:checked + .checkpoint-marker { border-color: var(--cp-accent); background: var(--cp-accent); color: var(--cp-accent-fg); animation: checkpoint-settle 280ms ease; }
+  .checkpoint-toggle input:checked + .checkpoint-marker .checkpoint-number { opacity: 0; }
+  .checkpoint-check { position: absolute; width: 24px; height: 24px; opacity: 0; }
+  .checkpoint-check path { stroke-dasharray: 24; stroke-dashoffset: 24; transition: stroke-dashoffset 300ms ease; }
+  .checkpoint-toggle input:checked + .checkpoint-marker .checkpoint-check { opacity: 1; }
+  .checkpoint-toggle input:checked + .checkpoint-marker .checkpoint-check path { stroke-dashoffset: 0; }
+  .checkpoint-copy { min-width: 0; padding: .125rem 0 1.25rem; border-bottom: 1px solid var(--cp-border); }
+  .checkpoint-meta { font-size: .6875rem; color: var(--cp-text-muted); letter-spacing: .035em; margin-bottom: .25rem; }
+  .checkpoint-copy h4 { margin: 0 0 .5rem; font-size: 1.125rem; font-weight: 600; line-height: 1.4; letter-spacing: -.025em; text-wrap: balance; }
+  .checkpoint-copy h4 a { text-decoration-thickness: 1px; }
+  .checkpoint-copy > p { color: var(--cp-text-muted); font-size: .9375rem; line-height: 1.65; max-width: 590px; }
+  .checkpoint-video { margin-top: 1.25rem; }
+  .checkpoint-video :global(.video-block) { margin-bottom: 1rem; }
+  .checkpoint-lesson { margin-top: .75rem; }
+  .checkpoint-lesson summary { width: fit-content; max-width: 100%; color: var(--cp-text); cursor: pointer; font-size: .8125rem; text-underline-offset: .22em; }
+  .checkpoint-lesson summary::marker { color: var(--cp-accent); }
+  .checkpoint-lesson summary:hover { color: var(--cp-accent); text-decoration: underline; }
+  .checkpoint-lesson summary:focus-visible { outline: 2px solid var(--cp-accent); outline-offset: 5px; }
+  .lesson-body { margin-top: 1rem; color: var(--cp-text-muted); font-size: .9375rem; line-height: 1.75; }
+  .lesson-body p + p { margin-top: 1rem; }
+  .lesson-body strong { color: var(--cp-text); font-weight: 600; }
+  .lesson-body ul { margin-block: 1rem; padding-left: 1.25rem; }
+  .lesson-body li + li { margin-top: .625rem; }
+  .lesson-body pre { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; margin-block: 1rem; padding: 1rem; border: 1px solid var(--cp-border); border-radius: .625rem; background: var(--cp-bg-elevated); }
+  .lesson-body code { font: .8125rem/1.7 Consolas, "Courier New", Courier, monospace; }
+  .lesson-body .lesson-references { font-size: .75rem; }
+  .lesson-body .lesson-try { margin-top: 1.25rem; border-left: 2px solid var(--cp-accent); padding-left: 1rem; }
+  .checkpoint-episode { margin-top: 1.25rem; }
+  .checkpoint-episode :global(.video-block) { margin-bottom: .75rem; }
+  @keyframes checkpoint-settle {
+    0% { transform: scale(.94); }
+    60% { transform: scale(1.07); }
+    100% { transform: scale(1); }
+  }
+  @media (max-width: 560px) {
+    .roadmap-checkpoint { gap: 1rem; }
+    .roadmap-chapter-title { gap: 1rem; }
+    .checkpoint-copy h4 { font-size: 1rem; }
+    .checkpoint-copy > p { font-size: .875rem; }
+    .roadmap-chapter-title .eyebrow { font-size: .6875rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .roadmap-checkpoint::before, .checkpoint-check path { transition: none; }
+    .checkpoint-toggle input:checked + .checkpoint-marker { animation: none; }
+  }
+  @media print {
+    .roadmap-progress, .roadmap-notice { display: none; }
+    .roadmap-checkpoint { break-inside: avoid; }
+  }
+</style>
+
+<script>
+  import { readProgress, roadmapStorageKey, writeProgress } from '../lib/roadmap-progress';
+
+  for (const roadmap of document.querySelectorAll<HTMLElement>('[data-roadmap]')) {
+    const checkpoints = [...roadmap.querySelectorAll<HTMLElement>('[data-checkpoint-id]')];
+    const ids = checkpoints.map((checkpoint) => checkpoint.dataset.checkpointId!);
+    const status = roadmap.querySelector<HTMLElement>('[data-progress-status]')!;
+    const notice = roadmap.querySelector<HTMLElement>('[data-progress-notice]')!;
+    const reset = roadmap.querySelector<HTMLButtonElement>('[data-progress-reset]')!;
+    let completed = new Set<string>();
+    let storage: Storage | undefined;
+
+    function notify(message: string) {
+      notice.textContent = message;
+      notice.hidden = false;
+    }
+
+    try {
+      storage = window.localStorage;
+      const saved = readProgress(storage.getItem(roadmapStorageKey), ids);
+      completed = saved.completed;
+      if (!saved.valid) {
+        notify('Saved checkmarks could not be read. Starting with none checked; new choices will replace them.');
+      }
+    } catch (error) {
+      if (!(error instanceof DOMException)) throw error;
+      storage = undefined;
+      notify('Browser storage is unavailable. Checkmarks will last for this visit only.');
+    }
+
+    function renderProgress() {
+      for (const checkpoint of checkpoints) {
+        const checked = completed.has(checkpoint.dataset.checkpointId!);
+        checkpoint.dataset.complete = String(checked);
+        checkpoint.querySelector<HTMLInputElement>('[data-checkpoint-toggle]')!.checked = checked;
+      }
+      status.textContent = `${completed.size} of ${ids.length} complete. ${
+        storage ? 'Saved in this browser.' : 'This visit only.'
+      }`;
+      reset.disabled = completed.size === 0;
+    }
+
+    function saveProgress() {
+      if (!storage) return;
+      try {
+        storage.setItem(roadmapStorageKey, writeProgress(completed));
+      } catch (error) {
+        if (!(error instanceof DOMException)) throw error;
+        storage = undefined;
+        notify('Checkmarks could not be saved. Changes will last for this visit only.');
+      }
+    }
+
+    renderProgress();
+    for (const checkpoint of checkpoints) {
+      const toggle = checkpoint.querySelector<HTMLInputElement>('[data-checkpoint-toggle]')!;
+      checkpoint.querySelector<HTMLElement>('.checkpoint-static')!.hidden = true;
+      checkpoint.querySelector<HTMLElement>('.checkpoint-toggle')!.hidden = false;
+      toggle.addEventListener('change', () => {
+        const id = checkpoint.dataset.checkpointId!;
+        if (toggle.checked) completed.add(id);
+        else completed.delete(id);
+        saveProgress();
+        renderProgress();
+      });
+    }
+    reset.addEventListener('click', () => {
+      completed.clear();
+      saveProgress();
+      renderProgress();
+    });
+    roadmap.querySelector<HTMLElement>('[data-progress-controls]')!.hidden = false;
+  }
+</script>

@@ -1,35 +1,33 @@
 ---
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import NoteList from '../../components/NoteList.astro';
+import TokenTipsRoadmap from '../../components/TokenTipsRoadmap.astro';
 import { publishedNotes } from '../../lib/content';
-import { pathTo } from '../../lib/paths';
+import { resolveTokenTipsRoadmap } from '../../lib/token-tips';
 
 const notes = (await publishedNotes())
   .filter((note) => note.data.series === 'token-tips')
   .sort((a, b) => (a.data.order ?? Infinity) - (b.data.order ?? Infinity));
+const mappedSlugs = new Set(resolveTokenTipsRoadmap(notes)
+  .flatMap((chapter) => chapter.checkpoints.flatMap(({ note }) => note ? [note.data.slug] : [])));
+const additionalNotes = notes.filter((note) => !mappedSlugs.has(note.data.slug));
 ---
 
-<SiteLayout title="Two-Minute Token Tips" description="Short, practical explanations about getting better results from AI without wasting context, time, or money." section="notes">
+<SiteLayout title="Two-Minute Token Tips" description="A roadmap of short videos on GitHub Copilot: clearer tasks, useful context, model choice, and measuring results." section="notes">
   <div class="page-heading">
     <p class="eyebrow">A short video series</p>
     <h1>Two-Minute<br class="desktop-break" /> Token Tips.</h1>
-    <p class="lede">Better results from AI, without wasting context, time, or money.</p>
+    <p class="lede">Practical ways to get more out of GitHub Copilot. One idea at a time.</p>
   </div>
   <div class="prose series-intro">
-    <p>Getting more out of a coding agent isn't just about using fewer tokens. It's about giving it a clear task, the right context, and a way to check its work.</p>
-    <p>Each video will focus on one idea, show a concrete example, and leave you with something to try. The accompanying note will include the example, a transcript, and links to go deeper.</p>
+    <p>Follow the path or jump to a topic. Each episode will pair a short YouTube video with an example, a transcript, and references. Planned topics are listed below.</p>
+    <p><a href="https://www.youtube.com/playlist?list=PLUiG6TzZ9a2k">Watch the playlist on YouTube</a>.</p>
   </div>
-  {notes.length > 0 ? (
-    <section aria-labelledby="episodes-title">
-      <h2 id="episodes-title">The episodes</h2>
-      <NoteList notes={notes} />
+  <TokenTipsRoadmap notes={notes} />
+  {additionalNotes.length > 0 && (
+    <section class="additional-episodes" aria-labelledby="additional-title">
+      <h2 id="additional-title">More from the series</h2>
+      <NoteList notes={additionalNotes} />
     </section>
-  ) : (
-    <aside class="series-notice">
-      <p class="eyebrow">In progress</p>
-      <h2>The first videos are in the works.</h2>
-      <p>I'm starting with the basics: clearer tasks, more useful context, and knowing when the work is actually done.</p>
-      <p>You can follow along through the <a href={pathTo('rss.xml')}>RSS feed</a> as notes are published.</p>
-    </aside>
   )}
 </SiteLayout>

@@ -55,6 +55,18 @@ Episode pages support a summary/body, optional `tryThis`, optional `caveat`, pub
 
 When advice ages, add a correction or superseding note while preserving the original URL.
 
+## Series roadmap
+
+`src/lib/token-tips.ts` holds the public topic titles, summaries, chapter order, and stable checkpoint IDs. These are planned topics, not automatically published articles. Keep private planning material outside the repository.
+
+An optional `lesson` adds a native expandable mini-lesson with paragraphs, optional key points/example, public references, and a practical `tryThis` action. Written lessons can be read before their videos are available; they do not publish a separate note or change its approval state.
+
+An optional `video` attaches a released YouTube video directly to a checkpoint without requiring a separate article or an unverified transcript. It needs `youtubeId`, `title`, `status: published`, `approvedForPublication: true`, and a non-future `publishedAt`. The same publication gate applies as for notes. An optional `poster` names an image in `public/`; no remote thumbnail is requested. The privacy-aware player appears above the mini-lesson toggle, and the homepage and RSS feed include these videos alongside published series notes without duplicating matched episodes.
+
+To attach an episode, use the checkpoint ID as the note's `slug`, or set the checkpoint's `noteSlug` to the note's existing slug. Episode 01 is mapped to `cheaper-tokens-wont-fix-a-vague-task`. Add the real YouTube ID, duration, transcript, and publication fields described above. Only approved, published notes produce links or players; unmatched published series notes remain listed below the roadmap. Do not add placeholder video IDs or commit recordings.
+
+The homepage groups the series into one feed entry alongside standalone publications. Optional roadmap checkmarks are saved only in the reader's browser, use stable IDs rather than list positions, and never hide content. Without JavaScript or browser storage, the roadmap still works.
+
 ## GitHub Pages
 
 This site uses the personally controlled `coby-blair` account and its root Pages repository. Pages serves the root of the `gh-pages` branch. `public/.nojekyll` preserves Astro's generated asset folders.
