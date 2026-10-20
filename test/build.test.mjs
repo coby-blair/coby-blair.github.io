@@ -79,18 +79,19 @@ This is synthetic fixture content, not a real publication.
     assert.equal((home.match(/data-feed-series="token-tips"/g) ?? []).length, 1);
     assert.ok(home.includes('href="/personal-site/series/token-tips/"'));
     assert.ok(home.includes('Latest:'));
-    assert.ok(home.includes('cheaper-tokens-wont-fix-a-vague-task'));
+    assert.ok(home.includes('href="/personal-site/series/token-tips/#clear-target"'));
+    assert.ok(home.includes('4 episodes'));
     assert.ok(!home.includes('visible-video'));
     assert.equal((roadmap.match(/data-checkpoint-id=/g) ?? []).length, 28);
     const lessonTags = roadmap.match(/<details\b[^>]*data-mini-lesson=[^>]*>/g) ?? [];
     assert.equal(lessonTags.length, 5);
     assert.ok(lessonTags.every((tag) => !/\sopen(?:\s|=|>)/.test(tag)));
     assert.equal((roadmap.match(/<strong[^>]*>Try it:<\/strong>/g) ?? []).length, 5);
-    assert.equal((roadmap.match(/Video coming soon/g) ?? []).length, 27);
+    assert.equal((roadmap.match(/Video coming soon/g) ?? []).length, 26);
     const checkpointHeaders = [...roadmap.matchAll(/data-checkpoint-id="([^"]+)"[^>]*>([\s\S]*?)<h4\b/g)];
     assert.equal(checkpointHeaders.length, 28);
     for (const [, id, header] of checkpointHeaders) {
-      if (id === 'cheaper-tokens') {
+      if (id === 'cheaper-tokens' || id === 'clear-target') {
         assert.ok(!header.includes('checkpoint-meta'));
         assert.ok(!header.includes('Video coming soon'));
       } else {
@@ -122,6 +123,16 @@ This is synthetic fixture content, not a real publication.
     );
     assert.ok(firstCheckpoint.indexOf('data-video-id="zyxwvutsrqp"') < firstCheckpoint.indexOf('data-mini-lesson='));
     assert.equal((firstCheckpoint.match(/data-video-id=/g) ?? []).length, 1);
+    const secondCheckpoint = roadmap.slice(
+      roadmap.indexOf('data-checkpoint-id="clear-target"'),
+      roadmap.indexOf('data-checkpoint-id="agent-context"'),
+    );
+    assert.ok(secondCheckpoint.includes('data-video-id="eMw8cHsRrZc"'));
+    assert.ok(secondCheckpoint.includes('src="/personal-site/token-tips-02-thumbnail.png"'));
+    assert.ok(secondCheckpoint.indexOf('data-video-id=') < secondCheckpoint.indexOf('data-mini-lesson='));
+    assert.equal((secondCheckpoint.match(/data-video-id=/g) ?? []).length, 1);
+    assert.ok(feed.includes('https://example.test/personal-site/series/token-tips/#clear-target'));
+    assert.ok(feed.includes('GitHub Copilot: Give the Agent a Clear Target | Token Tips 02'));
     assert.ok(roadmap.includes('href="/personal-site/notes/visible-video/"'));
     assert.ok(roadmap.includes('More from the series'));
     assert.ok(!roadmap.includes('Private unreleased title'));

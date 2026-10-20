@@ -60,6 +60,14 @@ export const tokenTipsChapters: readonly RoadmapChapter[] = [
         id: 'clear-target',
         title: 'Give the agent a clear target',
         summary: 'State what you know, what needs to change, and how you will know it is done.',
+        video: {
+          youtubeId: 'eMw8cHsRrZc',
+          title: 'GitHub Copilot: Give the Agent a Clear Target | Token Tips 02',
+          poster: 'token-tips-02-thumbnail.png',
+          status: 'published',
+          approvedForPublication: true,
+          publishedAt: new Date('2026-10-20T22:21:46Z'),
+        },
         lesson: {
           paragraphs: [
             '"Improve checkout" asks the agent to choose the problem, the scope, and the finish line. A useful task brief makes those choices explicit without prescribing an unproven fix. Start with three things:',

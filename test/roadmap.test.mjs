@@ -7,6 +7,7 @@ const checkpoints = tokenTipsChapters.flatMap((chapter) => chapter.checkpoints);
 const ids = checkpoints.map(({ id }) => id);
 const now = new Date('2026-10-19T17:00:00Z');
 const afterRelease = new Date('2026-10-19T19:00:00Z');
+const afterSecondRelease = new Date('2026-10-20T23:00:00Z');
 
 test('the full roadmap has 28 stable, unique checkpoints in five chapters', () => {
   assert.equal(tokenTipsChapters.length, 5);
@@ -101,6 +102,20 @@ test('standalone releases are shared by the homepage and feed only after publica
   assert.equal(videos.length, 1);
   assert.equal(videos[0].id, 'cheaper-tokens');
   assert.equal(videos[0].publishedAt.toISOString(), '2026-10-19T18:42:50.000Z');
+});
+
+test('episode two becomes available without replacing or duplicating episode one', () => {
+  assert.equal(resolveTokenTipsRoadmap([], afterRelease)[0].checkpoints[1].video, undefined);
+  const resolved = resolveTokenTipsRoadmap([], afterSecondRelease)[0].checkpoints;
+  assert.equal(resolved[0].video.youtubeId, 'oVPT_51ld44');
+  assert.equal(resolved[1].video.youtubeId, 'eMw8cHsRrZc');
+  assert.equal(resolved[1].video.poster, 'token-tips-02-thumbnail.png');
+  assert.deepEqual(standaloneTokenTipsVideos([], afterSecondRelease).map(({ id }) => id), [
+    'cheaper-tokens', 'clear-target',
+  ]);
+  assert.deepEqual(standaloneTokenTipsVideos([
+    note('cheaper-tokens-wont-fix-a-vague-task'),
+  ], afterSecondRelease).map(({ id }) => id), ['clear-target']);
 });
 
 test('progress is versioned and round-trips stable checkpoint IDs', () => {
