@@ -46,20 +46,23 @@ ${extra}
 This is synthetic fixture content, not a real publication.
 `);
     }
-    const result = spawnSync(process.execPath, [
-      path.join(root, 'node_modules', 'astro', 'bin', 'astro.mjs'), 'build',
-    ], {
-      cwd: directory,
-      env: {
-        ...process.env,
-        ASTRO_TELEMETRY_DISABLED: '1',
-        SITE_URL: 'https://example.test',
-        BASE_PATH: '/personal-site',
-      },
-      encoding: 'utf8',
-      timeout: 60000,
-    });
-    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    function build() {
+      const result = spawnSync(process.execPath, [
+        path.join(root, 'node_modules', 'astro', 'bin', 'astro.mjs'), 'build',
+      ], {
+        cwd: directory,
+        env: {
+          ...process.env,
+          ASTRO_TELEMETRY_DISABLED: '1',
+          SITE_URL: 'https://example.test',
+          BASE_PATH: '/personal-site',
+        },
+        encoding: 'utf8',
+        timeout: 60000,
+      });
+      assert.equal(result.status, 0, `${result.error?.message ?? ''}\n${result.stdout}\n${result.stderr}`);
+    }
+    build();
     const dist = path.join(directory, 'dist');
     const home = await readFile(path.join(dist, 'index.html'), 'utf8');
     const archive = await readFile(path.join(dist, 'notes', 'index.html'), 'utf8');
@@ -78,8 +81,9 @@ This is synthetic fixture content, not a real publication.
     assert.ok(home.includes('visible-article'));
     assert.equal((home.match(/data-feed-series="token-tips"/g) ?? []).length, 1);
     assert.ok(home.includes('href="/personal-site/series/token-tips/"'));
-    assert.ok(home.includes('Latest:'));
-    assert.ok(home.includes('href="/personal-site/series/token-tips/#clear-target"'));
+    assert.ok(!home.includes('A few things worth sharing'));
+    assert.ok(!home.includes('Latest:'));
+    assert.ok(!home.includes('href="/personal-site/series/token-tips/#clear-target"'));
     assert.ok(home.includes('4 episodes'));
     assert.ok(!home.includes('visible-video'));
     assert.equal((roadmap.match(/data-checkpoint-id=/g) ?? []).length, 28);
@@ -154,6 +158,32 @@ This is synthetic fixture content, not a real publication.
     assert.ok(video.includes('data-video-id="abcdefghijk"'));
     assert.ok(!video.includes('<iframe'));
     assert.ok(!video.includes('noindex'));
+    for (const output of [home, archive, roadmap, video]) {
+      assert.ok(!/\bhref=["'][^"']*rss\.xml/.test(output));
+      assert.ok(!output.includes('application/rss+xml'));
+    }
+    assert.ok(!roadmap.includes('Watch the playlist on YouTube'));
+    assert.ok(roadmap.includes('https://www.youtube.com/watch?v=eMw8cHsRrZc'));
+    for (const [slug] of fixtures) {
+      await rm(path.join(content, `${slug}.md`));
+    }
+    build();
+    const emptyArchive = await readFile(path.join(dist, 'notes', 'index.html'), 'utf8');
+    assert.ok(emptyArchive.includes('<h1>Notes.</h1>'));
+    assert.ok(emptyArchive.includes('Short explanations, videos, and few things worth trying out.'));
+    assert.ok(emptyArchive.includes('<h2><a href="/personal-site/series/token-tips/">Two-Minute Token Tips</a></h2>'));
+    assert.ok(emptyArchive.includes('<h3>Do more and spend less with GitHub Copilot</h3>'));
+    assert.ok(emptyArchive.includes('Short, practical videos and mini-lessons on clearer tasks, better context, and getting useful results from GitHub Copilot.'));
+    for (const removed of [
+      "Written down, so they're useful later",
+      'Notes &amp; examples.',
+      'Starting small.',
+      'The first notes are in the works.',
+      'No publishing schedule.',
+      'rss.xml',
+    ]) {
+      assert.ok(!emptyArchive.includes(removed));
+    }
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

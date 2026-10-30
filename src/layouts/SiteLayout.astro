@@ -40,7 +40,6 @@ const local = site.hostname === 'localhost' || site.hostname === '127.0.0.1';
     {(noindex || local) && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href={pathTo('favicon.svg')} />
-    <link rel="alternate" type="application/rss+xml" title="Coby Blair - Notes" href={pathTo('rss.xml')} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
@@ -65,7 +64,6 @@ const local = site.hostname === 'localhost' || site.hostname === '127.0.0.1';
       </main>
       <footer class="site-footer">
         <p>A personal site. Views are my own.</p>
-        <a href={pathTo('rss.xml')}>RSS<span class="sr-only"> feed</span></a>
       </footer>
     </div>
   </body>

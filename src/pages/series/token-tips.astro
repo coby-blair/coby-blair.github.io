@@ -21,7 +21,6 @@ const additionalNotes = notes.filter((note) => !mappedSlugs.has(note.data.slug))
   </div>
   <div class="prose series-intro">
     <p>Follow the path or jump to a topic. Each episode will pair a short YouTube video with an example, a transcript, and references. Planned topics are listed below.</p>
-    <p><a href="https://www.youtube.com/playlist?list=PLUiG6TzZ9a2k">Watch the playlist on YouTube</a>.</p>
   </div>
   <TokenTipsRoadmap notes={notes} />
   {additionalNotes.length > 0 && (
